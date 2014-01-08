@@ -25,8 +25,16 @@
 }
 
 #today {
-    font-size:22px;
 }
+
+.white-chevron-up  {
+    color:white;
+}
+
+#cur-date {
+    width:70px;
+}
+
 
 #spy {
     float:left;
@@ -57,13 +65,6 @@
     position:relative;
     left: 6px;
     top: -3px;
-}
-
-#tweet-span {
-    position:relative;
-    top:1px;
-    margin-right:20px;
-    float:left;
 }
 
 .tadiv {
@@ -123,10 +124,13 @@
     opacity:.8;
 }
 
-#footer {
+#the-footer {
     margin-top:10px;
-    margin-left:20px;
     margin-bottom:20px;
+    margin-left:auto;
+    margin-right:auto;
+    width:300px;
+    text-align:center;
 }
 
 
@@ -171,4 +175,17 @@
 }
 
 #all-info {
+}
+
+#wiki-div {
+    margin-right:20px;
+    margin-top:10px;
+}
+
+#tweet-div {
+    width:100px;
+    height:12px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
 }

@@ -4,7 +4,8 @@
     <title>A Genre A Day</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-    <link href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/slate/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/cerulean/bootstrap.min.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" type="text/javascript" charset="utf-8"></script>
     <link href="styles.css" rel="stylesheet">
     <script src="https://rdio.com/api/api.js?client_id=p1SjCdfA2vD_j4FKMGq1JA"></script>
@@ -26,17 +27,19 @@
 
 <body>
 
-<div id="wrap" class="navbar navbar-inverse">
+<div id="wrap" class="navbar navbare">
   <div class="navbar-inner">
     <div class="container">
         <a id='show-search' class="brand">Genre-A-Day</a>
         <ul class="nav">
+            <li id="date-up" class="nav-choice">
+                <a> <i class="icon-chevron-up white"></i></a>  
+            </li>
             <li class="nav-choice">  
-                <a><span id="today">
-                <i id="date-up" class="icon-chevron-up"></i>  &nbsp;
-                <span id='cur-date'></span> &nbsp;
-                <i id="date-down" class="icon-chevron-down"></i> 
-                </span></a> 
+                <a id='cur-date'></a> 
+            </li>
+            <li id="date-down" class="nav-choice">
+                <a> <i class="icon-chevron-down white"></i></a> 
             </li>
         </ul>
         <ul class="nav pull-right">
@@ -51,10 +54,12 @@
     <div class="container">
         <div id="the-main" class="span12 ">
             <h1 class="gname"> </h1>
-
             <div id="description-div">
-            <p id="description" class="lead"> 
-            </div> <div id="wiki-div"> See more on <a id="wiki-link" href="">Wikipedia</a></div>
+                <p>
+                <span id="description" class="lead">  </span>
+                <span id="wiki-div" class="pull-right"> Read more on <a id="wiki-link" href="">Wikipedia</a></span>
+                </p>
+            </div> 
         </div>
     </div>
     <div class="container">
@@ -80,9 +85,9 @@
             <div>
                 <h4> Top <span class="gname"></span> Songs </h4>
                 <div class="btn-group" data-toggle="buttons-radio">
-                    <button id="intro" type="button" class="btn active">Intro</button>
-                    <button id="current" type="button" class="btn">Current</button>
-                    <button id="discovery" type="button" class="btn">Discovery</button>
+                    <button id="intro" title="Songs to introduce you to the genre" type="button" class="btn active">Core</button>
+                    <button id="current" title="Most popular songs being played today" type="button" class="btn">In rotation</button>
+                    <button id="discovery" title="Unexpectedly popular songs in the genre" type="button" class="btn">Emerging</button>
                  </div>
                 <div id="song-main">
                     <div id='song-list'> </div>
@@ -93,10 +98,20 @@
     </div>
   </div>
 
-  <div class="container span8 offset1">
+  <div id="tweet-div" class='tweet'>
+    <span id='tweet-span'> 
+        <a href="https://twitter.com/share" data-size="large" id='tweet' class="twitter-share-button" data-lang="en" data-count='none'>Tweet</a>
+        <script>!function(d,s,id){var
+        js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </span>
+  </div>
+<br clear="both">
+<div id="the-footer" class="">
+  <div>
     <small>
     Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>. 
     </small>
+    </div>
   </div>
 
 </div>
@@ -106,22 +121,25 @@
 
 jQuery.ajaxSettings.traditional = true; 
 var host = 'http://developer.echonest.com/api/v4/';
-var apiKey =  'EHY4JJEGIOFA1RCJP';
+var apiKey =  'YTBBANYZHICTAFW2P';
 var curSong = null;
 var songTemplate = _.template($("#song-template").text());
 var knownSongs = {};
 var genreList;
 var curDateIndex = 0;
-var startingDate = new Date(2014, 1, 10);
+var startingDate = new Date(2014, 0, 10);
 var curGenre = null;
+var deferredSongs = null;
 
 function initUI() {
     $("#all-info").hide();
-    $("#date-up").click(function() {
+    $("#date-up").click(function(e) {
+        e.preventDefault();
         nextDateIndex();
     });
 
-    $("#date-down").click(function() {
+    $("#date-down").click(function(e) {
+        e.preventDefault();
         prevDateIndex();
     });
 
@@ -147,7 +165,6 @@ function songChanged(song) {
         var pause = el.find('.pause');
         var play = el.find('.play');
 
-        console.log('is current', song, curSong);
         if (song  === curSong) {
             el.addClass('is-current');
         } else {
@@ -203,6 +220,11 @@ function getPlayer(song) {
 
 function fetchRdioTrackInfo(songs) {
     var ids = [];
+
+    if (!R.ready()) {
+        deferredSongs = songs;
+        return;
+    } 
 
     var list = $("#song-list");
     list.empty();
@@ -283,7 +305,6 @@ function showPlayer(song) {
 }
 
 function showPlaylist(songs) {
-    console.log('showPlaylist', songs);
     _.each(songs, 
         function(song, index, list) { 
             showPlayer(song); 
@@ -292,8 +313,10 @@ function showPlaylist(songs) {
 }
 
 
-function loadGenre(genreName, updateURL) {
+function loadGenre(genreName, updateURL, date) {
     curGenre = genreName;
+    var title = genreName + ": the Genre-A-Day for " + date;
+    document.title = title;
     if (updateURL) {
         setURL(curGenre);
     }
@@ -301,6 +324,7 @@ function loadGenre(genreName, updateURL) {
     loadSimilarGenres(genreName);
     loadTopArtists(genreName);
     loadTopSongs(genreName, 'core-best');
+    tweetSetup();
 }
 
 function loadGenreInfo(genreName) {
@@ -308,7 +332,6 @@ function loadGenreInfo(genreName) {
     $.getJSON(url, {api_key:apiKey, name:genreName, bucket:['description', 'urls']},
         function(data) {
             var genre = data.response.genres[0];
-            console.log('genre', genre);
             $(".gname").text(genre.name);
             $("#description").text(genre.description);
             if ('wikipedia_url' in genre.urls) {
@@ -327,7 +350,6 @@ function loadTopArtists(genreName) {
     $.getJSON(url, {api_key:apiKey, name:genreName },
         function(data) {
             var artists = data.response.artists;
-            console.log('data', data);
             var list = $("#artist-list");
             list.empty();
             _.each(artists, function(artist, i) {
@@ -343,11 +365,9 @@ function loadSimilarGenres(genreName) {
     $.getJSON(url, {api_key:apiKey, name:genreName },
         function(data) {
             var genres = data.response.genres;
-            console.log('data', data);
             var list = $("#similar-genres");
             list.empty();
             _.each(genres, function(genre, i) {
-                console.log(i, genre);
                 var a = $("<a>").text(genre.name).attr('href', '?genre='+genre.name);
                 var li = $("<li>").append(a).addClass('gna');
                 list.append(li);
@@ -384,7 +404,6 @@ function getDayDelta() {
     today.setMilliseconds(0);
     var delta = today - startingDate;
     var days =  Math.round(delta / (1000 * 60 * 60* 24));
-    console.log('get day delta', delta, 'days', days);
     return days;
 }
 
@@ -409,7 +428,7 @@ function setDateIndex(idx, updateURL) {
     var nextDate = new Date(next);
     var ds = nextDate.toLocaleDateString();
     $("#cur-date").text(ds);
-    loadGenre(genreList[curDateIndex], updateURL);
+    loadGenre(genreList[curDateIndex], updateURL, ds);
 }
 
 function nextDateIndex() {
@@ -439,6 +458,27 @@ function loadGenreList() {
         });
 }
 
+function tweetSetup() {
+    $(".twitter-share-button").remove();
+    var tweet = $('<a>')
+        .attr('href', "https://twitter.com/share")
+        .attr('id', "tweet")
+        .attr('class', "twitter-share-button")
+        .attr('data-lang', "en")
+        .attr('data-size', "large")
+        .attr('data-count', "none")
+        .text('Tweet');
+
+    $("#tweet-span").prepend(tweet);
+    tweet.attr('data-text', document.title + " #GenreADay");
+    tweet.attr('data-url', document.URL);
+
+    // twitter can be troublesome. If it is not there, don't bother loading it
+    if ('twttr' in window) {
+        twttr.widgets.load();
+    }
+}
+
 function processParams() {
     var params = {};
     var q = document.URL.split('?')[1];
@@ -462,28 +502,34 @@ function processParams() {
 }
 
 
-$(document).ready(function() {
-    $.ajaxSetup( {cache: false});
-
-    initUI();
-    R.ready(function() {
-        R.player.on("change:playingTrack", function(track) {
-            if (track === null) {
-                playNext();
-            }
-        });
-        
-        R.player.on("change:playState", function(state) {
-            songChanged(curSong);
-        });
-
-        R.player.on("change:playingSource", function(track) {
-            songChanged(curSong);
-        });
-
-        console.log('rdio ready');
-        loadGenreList();
+function rdioSetup() {
+    R.player.on("change:playingTrack", function(track) {
+        if (track === null) {
+            playNext();
+        }
     });
+    
+    R.player.on("change:playState", function(state) {
+        songChanged(curSong);
+    });
+
+    R.player.on("change:playingSource", function(track) {
+        songChanged(curSong);
+    });
+
+    if (deferredSongs) {
+        var songs = deferredSongs;
+        deferredSongs = null;
+        fetchRdioTrackInfo(songs);
+    }
+}
+
+R.ready(rdioSetup)
+
+$(document).ready(function() {
+    $.ajaxSetup( {cache: true});
+    initUI();
+    loadGenreList();
 });
 
 </script>
