@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>A Genre A Day</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootswatch/2.3.1/cerulean/bootstrap.min.css" rel="stylesheet">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+    <link href="styles.css" rel="stylesheet">
+    <script src="https://rdio.com/api/api.js?client_id=p1SjCdfA2vD_j4FKMGq1JA"></script>
+
+    <script id="song-template" type="text/template">
+      <div class="adiv" style="background-image: url(<%= bigIcon %>)">
+          <div class="buttons">
+                <button title='Skip this song' class='btn btn-inverse bypass tooltips'>Bypass</button>
+                <img class='playbutton play' src='images/play.png'>
+                <img class='playbutton pause' src='images/pause.png'>
+          </div>          
+         <div class="song-info">
+            <div class="title album-label"><%= name %></div>
+            <div class="artist album-label"><%= artist %></div>
+         </div>
+      </div>
+    </script>
+  </head>
+
+<body>
+
+<div id="wrap" class="navbar navbare">
+  <div class="navbar-inner">
+    <div class="container">
+        <a id='show-search' class="brand">Genre-A-Day</a>
+        <ul class="nav pull-right">
+          <li class="nav-choice"><a href="index.html">Today</a></li>
+          <li class="nav-choice active"><a href="about.html">About</a></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+<div id="all-info">
+    <div class="container">
+        <div id="the-main" class="span12 ">
+            <h1 class="gname"> About Genre-A-Day</h1>
+            <div id="description-div" class="lead"> 
+                <p>
+                The Echo Nest knows about hundreds and hundreds of genres, from <i>A cappela</i> to <i>Zydeco</i>. 
+                With <em>Genre-A-Day</em> you can learn about a new genre, every day for years to come. Every day, 
+                a new genre is presented. You can read about the background and history of the genre, listen to its music, 
+                learn about the genre's key artists and more.
+                </p>
+                <p>
+                Genre-A-Day was built using the Echo Nest's Genre APIs.  You can learn more about The Echo Nest's extensive
+                music APIs at <a href='http://developer.echonest.com'>developer.echonest.com</a>
+                </p>
+                The source for this app is available on <a href='https://github.com/plamere/GenreADay'>github</a?
+            </div> 
+        </div>
+    </div>
+
+  <div id="the-footer" class="">
+    <small>
+    Powered by <a href="http://echonest.com">The Echo Nest</a> and <a href="http://rdio.com">Rdio</a>. 
+    </small>
+  </div>
+
+</div>
+</body>
+</html>

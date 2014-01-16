@@ -27,7 +27,8 @@ def post(text):
     if testing:
         print text
     else:
-       api.update_status(text)
+        print text
+        api.update_status(text)
 
 
 def get_genre_of_the_day():
