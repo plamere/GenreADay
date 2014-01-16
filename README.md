@@ -11,3 +11,6 @@ Genre-A-Day is a web app that presents a new music genre every day. For each gen
  	- emerging - unfamiliar to most listeners
  	
  The app is hosted at[ Genre A Day](http://static.echonest.com/GenreADay/)
+ 
+ Included in the web app is a python script: tweeter.py. This script runs
+ as a daily cronjob. It collects Genre-A-Day info about the current day's genre and tweets it on th GenreADay twitter account.

@@ -84,11 +84,13 @@
         <div  class="span12 ">
             <div>
                 <h4> Top <span class="gname"></span> Songs </h4>
+                <div id="info" class=""> </div>
                 <div class="btn-group" data-toggle="buttons-radio">
                     <button id="intro" title="Songs to introduce you to the genre" type="button" class="btn active">Core</button>
                     <button id="current" title="Most popular songs being played today" type="button" class="btn">In rotation</button>
                     <button id="discovery" title="Unexpectedly popular songs in the genre" type="button" class="btn">Emerging</button>
                  </div>
+                    <button id="save-button" title="Save playlist to rdio" type="button" class="btn pull-right">Save playlist</button>
                 <div id="song-main">
                     <div id='song-list'> </div>
                     <br style="clear:left;"/>
@@ -134,6 +136,8 @@ var genreList;
 var curDateIndex = 0;
 var startingDate = new Date(2014, 0, 10);
 var curGenre = null;
+var curSongs = null;
+var curStyle = null;
 var deferredSongs = null;
 
 function initUI() {
@@ -161,6 +165,19 @@ function initUI() {
     $("#discovery").click(function() {
         loadTopSongs(curGenre, 'emerging-best');
     });
+
+    $("#save-button").click(savePlaylist);
+}
+
+
+function info(s) {
+    $("#info").text(s);
+    console.log('info:' + s);
+}
+
+function error(s) {
+    $("#info").text(s);
+    console.log('error:' + s);
 }
 
 function songChanged(song) {
@@ -381,7 +398,10 @@ function loadSimilarGenres(genreName) {
 }
 
 function loadTopSongs(genreName, preset) {
-    var url = host + 'playlist/static'
+    info("");
+    curStyle = preset.replace(/_/g, ' ');
+    curStyle = curStyle.replace('-best', '');
+    var url = host + 'playlist/static';
     $.getJSON(url, {api_key:apiKey, bucket:['tracks', 'id:rdio-US'],    
                     limit:true, type:"genre-radio", 
                     results:12, 
@@ -451,6 +471,61 @@ function findIndexForGenre(genre) {
         }
     }
     return 158;
+}
+
+function getCurRdioTracks() {
+    var ids = [];
+
+    _.each(curSongs, 
+        function(song) {
+            ids.push(song.rdio.key);
+        }
+    );
+    return ids;
+}
+
+function savePlaylistToRdio() {
+    var ids = getCurRdioTracks();
+    var title = curStyle + ' ' + curGenre;
+    var description = 'a  playlist with ' + curSongs.length + ' songs created by Genre-A-Day';
+
+    if (ids.length > 0) {
+        R.request( 
+        { 
+            method:"createPlaylist", 
+            content: { 
+                name: title,
+                description: description,
+                tracks: ids 
+            },
+
+            success: function(response) {
+                info("Playlist titled '" + title + "' has been saved to Rdio.");
+            },
+
+            error: function(response) {
+                error("whoops - had some trouble saving that playlist to rdio");
+            }
+        });
+    }  else {
+    }
+}
+
+function savePlaylist() {
+    info("Saving the playlist");
+    if (!R.authenticated()) {
+        R.authenticate(
+            function(state) {
+                if (!state) {
+                    info("Can't save the playlist unless you authorize this app");
+                } else {
+                    savePlaylistToRdio();
+                }
+            }
+        );
+    } else {
+        savePlaylistToRdio();
+    }
 }
 
 

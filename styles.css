@@ -101,7 +101,9 @@
 }
 
 #info {
-    margin-left:0px;
+    height:24px;
+    width:100%;
+    text-align:right;
 }
 
 
@@ -194,3 +196,8 @@
     height:20px;
     margin-left:-12px;
 }
+
+#save-button  {
+    margin-right:10px;
+}
+
