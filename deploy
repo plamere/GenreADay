@@ -1,3 +1,3 @@
 s3cmd sync --acl-public *  --exclude .git s3://static.echonest.com/GenreADay/
-rsync -avz  genres.js tweeter.py echonest@ec2-54-227-6-186.compute-1.amazonaws.com:apps/scripts
+rsync -avz  go genres.js tweeter.py echonest@ec2-54-227-6-186.compute-1.amazonaws.com:apps/scripts
 

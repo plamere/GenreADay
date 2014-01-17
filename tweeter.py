@@ -4,6 +4,7 @@ import simplejson as json
 import os
 import urllib
 import pyen
+import sys
  
 consumer_key = os.environ['twitter_consumer_key']
 consumer_secret = os.environ['twitter_consumer_secret']
@@ -52,6 +53,10 @@ def  get_genre_artists(genre):
     results = en.get('genre/artists', name=genre)
     return results['artists']
 
+def  get_genre_description(genre):
+    results = en.get('genre/profile', name=genre, bucket='description')
+    return results['genres'][0]["description"]
+
 
 def add_artists(tweet, length, artists):
     prefix = ' with music by '
@@ -71,15 +76,52 @@ def add_artists(tweet, length, artists):
         tweet = tweet.replace('::', full_artist_string)
 
     return tweet
-    
-def build_tweet(date, genre, artists):
-    link = 'http://static.echonest.com/GenreADay/?'
+   
+def get_link(genre):
+    link = ' http://static.echonest.com/GenreADay/?'
     link += urllib.urlencode( {'genre':genre} ) 
+    return link
+
+def post_tweet(date, genre):
+    artists = get_genre_artists(cur_genre)
+    link = get_link(genre)
     tweet = 'The Genre-A-Day for ' + date + ' is ' + genre.title() + '::'
     remaining_length = short_length + len(tweet) 
     tweet = add_artists(tweet, remaining_length, artists)
-    return tweet + link
+    tweet = tweet + link
+    post(tweet)
     
+
+def trim_to_length(s, length, ch):
+    while len(s) > length:
+        # print 'ttl in', length, ch, s
+        cpos = s.rfind(ch)
+        if cpos > 0:
+            s = s[:cpos]
+        else:
+            break
+    # print 'ttl out', len(s), s
+    return s
+
+def filter_description(desc, length):
+    desc_out = trim_to_length(desc, length, '.')
+    if len(desc_out) > length:
+        desc_out = trim_to_length(desc, length - 4, ' ')
+        if len(desc_out) > length:
+            desc_out = desc[:length - 4]
+        desc_out += ' ...'
+    return desc_out
+        
+
+def post_tweet2(date, genre):
+    description = get_genre_description(genre)
+    if len(description ) == 0:
+        post_tweet(date, genre)
+    else:
+        description = filter_description(description, 140 - (short_length + 4))
+        tweet = description + get_link(genre)
+        post(tweet)
+
 
 if __name__ == '__main__':
     api = authenticate()
@@ -87,11 +129,27 @@ if __name__ == '__main__':
     delta = get_day_delta()
     genres = load_genre_list()
     cur_genre = genres[delta]
-    artists = get_genre_artists(cur_genre)
-    tweet = build_tweet(date, cur_genre, artists)
-    post(tweet)
 
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '--morning':
+            post_tweet(date, cur_genre)
+        elif sys.argv[1] == '--afternoon':
+            post_tweet2(date, cur_genre)
 
-
-
+        if sys.argv[1] == '--morning-test':
+            testing = True
+            post_tweet(date, cur_genre)
+        elif sys.argv[1] == '--afternoon-test':
+            testing = True
+            post_tweet2(date, cur_genre)
+        elif sys.argv[1] == '--morning-full-test':
+            testing = True
+            for g in genres:
+                post_tweet(date, g)
+        elif sys.argv[1] == '--afternoon-full-test':
+            testing = True
+            for g in genres:
+                post_tweet2(date, g)
+    else:
+        print "usage tweeter [--morning] [--afternoon]"
 
