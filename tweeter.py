@@ -28,7 +28,6 @@ def post(text):
     if testing:
         print text
     else:
-        print text
         api.update_status(text)
 
 
@@ -90,6 +89,13 @@ def post_tweet(date, genre):
     tweet = add_artists(tweet, remaining_length, artists)
     tweet = tweet + link
     post(tweet)
+
+def post_midnight_tweet(date, genre):
+    artists = get_genre_artists(cur_genre)
+    link = get_link(genre)
+    tweet = "Get ready for the next Genre-A-Day: " + genre.title() 
+    tweet = tweet + link
+    post(tweet)
     
 
 def trim_to_length(s, length, ch):
@@ -100,14 +106,16 @@ def trim_to_length(s, length, ch):
             s = s[:cpos]
         else:
             break
+        #print 'ttl', length, len(s), s
     # print 'ttl out', len(s), s
     return s
 
 def filter_description(desc, length):
+    min_length = 30
     desc_out = trim_to_length(desc, length, '.')
-    if len(desc_out) > length:
+    if len(desc_out) > length or len(desc_out) < min_length:
         desc_out = trim_to_length(desc, length - 4, ' ')
-        if len(desc_out) > length:
+        if len(desc_out) > length or len(desc_out) < min_length:
             desc_out = desc[:length - 4]
         desc_out += ' ...'
     return desc_out
@@ -135,6 +143,12 @@ if __name__ == '__main__':
             post_tweet(date, cur_genre)
         elif sys.argv[1] == '--afternoon':
             post_tweet2(date, cur_genre)
+        elif sys.argv[1] == '--midnight':
+            post_midnight_tweet(date, cur_genre)
+
+        if sys.argv[1] == '--midnight-test':
+            testing = True
+            post_midnight_tweet(date, cur_genre)
 
         if sys.argv[1] == '--morning-test':
             testing = True
